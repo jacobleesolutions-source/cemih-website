@@ -1,0 +1,55 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { aboutNav, services, type NavItem } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Which sidebar to show next to the content, if any. */
+  sidebar?: 'about' | 'services' | 'contact';
+  searchable?: boolean;
+}
+
+const { title, description, sidebar, searchable } = Astro.props;
+const menus: Record<string, { heading: string; items: NavItem[] }> = {
+  about: { heading: 'About Us', items: aboutNav },
+  services: { heading: 'Services', items: services },
+};
+const menu = sidebar ? menus[sidebar] : undefined;
+const path = Astro.url.pathname;
+---
+
+<BaseLayout title={title} description={description} searchable={searchable}>
+  <div class:list={['content-band', { 'has-sidebar': sidebar, 'sidebar-right': sidebar === 'contact' }]}>
+    <div class="inner">
+      <article class="typography">
+        <slot />
+      </article>
+      {
+        menu && (
+          <aside class="sidebar" data-pagefind-ignore>
+            <h4>{menu.heading}</h4>
+            <ul class="side-menu">
+              {menu.items.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={path === item.href ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )
+      }
+      {
+        sidebar === 'contact' && (
+          <aside class="sidebar" data-pagefind-ignore>
+            <h4>Contact Us Now</h4>
+            <ContactForm id="sidebar" />
+          </aside>
+        )
+      }
+    </div>
+  </div>
+</BaseLayout>

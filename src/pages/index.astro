@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { services } from '../data/site';
+---
+
+<BaseLayout>
+  <div class="content-band">
+    <div class="inner typography">
+      <p class="intro">
+        Certified Environmental Management, Ltd., (CEM) is an AIHA-LAP Accredited Laboratory providing specialized
+        Industrial Hygiene Services. Our customer focused approach combined with decades of experience set CEM apart as
+        one of the premier Industrial Hygiene companies in the world.
+      </p>
+      <p class="center"><a href="/about-us/accreditations/" class="button large">View Our Accreditations</a></p>
+
+      <hr />
+
+      <h3 class="center">CEM offers a broad range of services including:</h3>
+      <ul class="service-grid">
+        {
+          services.map((s) => (
+            <li>
+              <a href={s.href}>
+                <span class="service-icon" aria-hidden="true">
+                  <i class={`fa-solid fa-${s.icon}`} />
+                </span>
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

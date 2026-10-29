@@ -1,0 +1,23 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+---
+
+<PageLayout title="Search" searchable={false}>
+  <div class="search-page" data-pagefind-ignore="all">
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+    <div id="search"></div>
+    <noscript><p>Search requires JavaScript.</p></noscript>
+  </div>
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    // The index is generated at build time (`npm run build`), so search
+    // only works on the built site, not in `npm run dev`.
+    if (window.PagefindUI) {
+      const ui = new PagefindUI({ element: '#search', showSubResults: true, showImages: false });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    } else {
+      document.getElementById('search').textContent = 'Search is available on the built site (run "npm run build" then "npm run preview").';
+    }
+  </script>
+</PageLayout>

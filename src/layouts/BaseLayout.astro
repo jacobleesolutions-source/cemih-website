@@ -1,0 +1,174 @@
+---
+import '@fortawesome/fontawesome-free/css/fontawesome.css';
+import '@fortawesome/fontawesome-free/css/solid.css';
+import '../styles/global.css';
+import ContactForm from '../components/ContactForm.astro';
+import { company, ctaMessage, mainNav } from '../data/site';
+
+interface Props {
+  /** Page title; omitted on the home page. */
+  title?: string;
+  description?: string;
+  /** Set false to keep a page out of the site search index. */
+  searchable?: boolean;
+}
+
+const { title, searchable = true, description = `${company.name} is an AIHA-LAP Accredited Laboratory providing specialized Industrial Hygiene Services.` } = Astro.props;
+const fullTitle = title ? `${title} | ${company.name}` : company.name;
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const year = new Date().getFullYear();
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(path, Astro.site)} />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,700;1,400&family=Pontano+Sans:wght@400;700&display=swap"
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="topbar">
+        <div class="inner">
+          <span>Give us a call <a href={company.tollFreeHref}>{company.tollFree}</a></span>
+        </div>
+      </div>
+
+      <div class="banner">
+        <div class="inner">
+          <a href="/" class="logo">
+            <img src="/images/logo.png" alt={`${company.name} – ${company.tagline}`} width="847" height="155" />
+          </a>
+        </div>
+      </div>
+
+      <nav class="primary-nav" aria-label="Main">
+        <div class="inner">
+          <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="main-menu">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i> Menu
+          </button>
+          <ul id="main-menu">
+            {
+              mainNav.map((item) => (
+                <li>
+                  <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    {
+      title ? (
+        <div class="titlebar">
+          <div class="inner">
+            <h1>{title}</h1>
+          </div>
+        </div>
+      ) : (
+        <div class="hero">
+          <img
+            src="/images/hero.jpg"
+            alt="Comprehensive Industrial Hygiene Services to Proactively Keep Your Employees Safe"
+            width="1920"
+            height="384"
+          />
+        </div>
+      )
+    }
+
+    <main id="main" data-pagefind-body={searchable ? '' : undefined}>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="cta">
+        <div class="inner"><p>{ctaMessage}</p></div>
+      </div>
+
+      <div class="footer-widgets">
+        <div class="inner grid-3">
+          <section>
+            <h4>Search Our Site</h4>
+            <form class="search-form" action="/search/" method="get" role="search">
+              <label for="footer-search" class="visually-hidden">Search</label>
+              <input id="footer-search" type="search" name="q" />
+              <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></button>
+            </form>
+          </section>
+          <section>
+            <h4>Give Us a Call</h4>
+            <p class="phone"><a href={company.tollFreeHref}>{company.tollFree}</a></p>
+            <h4>Headquarters</h4>
+            <address>
+              {company.name}<br />
+              {company.address[0]}<br />
+              {company.address[1]}
+            </address>
+            <p><a href="/contact-us/" class="button small">See More</a></p>
+          </section>
+          <section>
+            <h4>Get in Touch With Us</h4>
+            <ContactForm id="footer" />
+          </section>
+        </div>
+      </div>
+
+      <div class="trim">
+        <div class="inner">
+          <ul>
+            <li><a href="/about-us/">About Us</a></li>
+            <li><a href="/contact-us/">Contact Us</a></li>
+          </ul>
+          <p>&copy; {year} {company.name}</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu toggle.
+      const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+      toggle?.addEventListener('click', () => {
+        const open = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', String(!open));
+      });
+
+      // Tab groups (Industries, Technical Info). Without JS every panel simply shows.
+      document.querySelectorAll<HTMLElement>('.tab-group').forEach((group) => {
+        const tabs = [...group.querySelectorAll<HTMLAnchorElement>('.tabs a')];
+        const panels = [...group.querySelectorAll<HTMLElement>('.panel')];
+        const show = (id: string) => {
+          tabs.forEach((t) => t.setAttribute('aria-selected', String(t.hash === `#${id}`)));
+          panels.forEach((p) => (p.hidden = p.id !== id));
+        };
+        group.classList.add('js');
+        tabs.forEach((t) => {
+          t.setAttribute('role', 'tab');
+          t.addEventListener('click', (e) => {
+            e.preventDefault();
+            show(t.hash.slice(1));
+            history.replaceState(null, '', t.hash);
+          });
+        });
+        const initial = panels.find((p) => `#${p.id}` === location.hash) ?? panels[0];
+        if (initial) show(initial.id);
+      });
+    </script>
+  </body>
+</html>
