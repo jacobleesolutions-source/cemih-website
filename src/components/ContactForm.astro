@@ -1,7 +1,11 @@
 ---
 // Static contact form handled by Netlify Forms: no server code on our side.
 // Netlify finds the form in the built HTML and emails submissions to the
-// address configured in the Netlify dashboard (Forms > Notifications).
+// address configured in the Netlify dashboard (Forms > Submission notifications),
+// which keeps the recipient address out of the public HTML.
+//
+// Netlify field conventions: `subject` sets the notification email's subject
+// line, and `email` becomes its Reply-To, so replying goes to the visitor.
 interface Props {
   id: string;
 }
@@ -17,6 +21,7 @@ const { id } = Astro.props;
   netlify-honeypot="bot-field"
 >
   <input type="hidden" name="form-name" value="contact" />
+  <input type="hidden" name="subject" data-remove-prefix value="New inquiry from the CEM website" />
   <p class="visually-hidden">
     <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
   </p>
@@ -30,8 +35,8 @@ const { id } = Astro.props;
   <label for={`${id}-email`}>Your Email <span class="req">(required)</span></label>
   <input id={`${id}-email`} type="email" name="email" autocomplete="email" required />
 
-  <label for={`${id}-subject`}>Subject</label>
-  <input id={`${id}-subject`} type="text" name="subject" />
+  <label for={`${id}-topic`}>Subject</label>
+  <input id={`${id}-topic`} type="text" name="topic" />
 
   <label for={`${id}-message`}>Your Message</label>
   <textarea id={`${id}-message`} name="message" rows="6"></textarea>
