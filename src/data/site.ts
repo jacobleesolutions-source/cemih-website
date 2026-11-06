@@ -3,6 +3,8 @@ export const company = {
   tagline: 'Innovative Industrial Hygiene Services',
   tollFree: '1-800-252-2236',
   tollFreeHref: 'tel:+18002522236',
+  /** Where the contact form's messages go. */
+  contactEmail: 'sfast@cemih.com',
   address: ['3115 Enterprise Dr., Ste. C', 'Salina, KS USA 67401'],
 };
 

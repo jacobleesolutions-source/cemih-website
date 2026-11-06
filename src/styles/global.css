@@ -397,6 +397,10 @@ h5 {
   align-self: flex-start;
   margin-top: 14px;
 }
+.contact-form .form-note {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+}
 .search-form {
   display: flex;
 }

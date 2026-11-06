@@ -1,11 +1,9 @@
 ---
-// Static contact form handled by Netlify Forms: no server code on our side.
-// Netlify finds the form in the built HTML and emails submissions to the
-// address configured in the Netlify dashboard (Forms > Submission notifications),
-// which keeps the recipient address out of the public HTML.
-//
-// Netlify field conventions: `subject` sets the notification email's subject
-// line, and `email` becomes its Reply-To, so replying goes to the visitor.
+// Contact form with no backend: on submit it opens the visitor's own email app
+// with a message to `company.contactEmail` already filled in. Nothing is sent
+// until they press send there, and nothing is stored on our side.
+import { company } from '../data/site';
+
 interface Props {
   id: string;
 }
@@ -14,18 +12,11 @@ const { id } = Astro.props;
 
 <form
   class="contact-form"
-  name="contact"
-  method="POST"
-  action="/thanks/"
-  data-netlify="true"
-  netlify-honeypot="bot-field"
+  action={`mailto:${company.contactEmail}`}
+  method="post"
+  enctype="text/plain"
+  data-contact-email={company.contactEmail}
 >
-  <input type="hidden" name="form-name" value="contact" />
-  <input type="hidden" name="subject" data-remove-prefix value="New inquiry from the CEM website" />
-  <p class="visually-hidden">
-    <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
-  </p>
-
   <label for={`${id}-name`}>Your Name <span class="req">(required)</span></label>
   <input id={`${id}-name`} type="text" name="name" autocomplete="name" required />
 
@@ -39,7 +30,39 @@ const { id } = Astro.props;
   <input id={`${id}-topic`} type="text" name="topic" />
 
   <label for={`${id}-message`}>Your Message</label>
-  <textarea id={`${id}-message`} name="message" rows="6"></textarea>
+  <!-- Capped because very long mailto links get cut off by some email apps. -->
+  <textarea id={`${id}-message`} name="message" rows="6" maxlength="1500"></textarea>
 
   <button type="submit" class="button">Send</button>
+
+  <p class="form-note" role="status" hidden>
+    Your email app should now open with your message ready to send. If it didn't,
+    <a href={`mailto:${company.contactEmail}`}>click here to try again</a> or call
+    <a href={company.tollFreeHref}>{company.tollFree}</a>.
+  </p>
 </form>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('.contact-form').forEach((form) => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const field = (name: string) => String(data.get(name) ?? '').trim();
+
+      const subject = field('topic') || `Website inquiry from ${field('name')}`;
+      const body = [
+        `Name: ${field('name')}`,
+        `Company: ${field('company')}`,
+        `Email: ${field('email')}`,
+        '',
+        field('message'),
+      ].join('\r\n');
+      const href = `mailto:${form.dataset.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+      const note = form.querySelector<HTMLElement>('.form-note');
+      note?.querySelector('a')?.setAttribute('href', href);
+      if (note) note.hidden = false;
+      location.href = href;
+    });
+  });
+</script>

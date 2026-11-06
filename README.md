@@ -22,6 +22,6 @@ There is no server code or database: the build output in `dist/` is plain HTML/C
 
 ## Hosting notes
 
-- The contact form uses **Netlify Forms**. On Netlify, set the notification email under
-  *Forms → Notifications*. Another host needs a different form handler (e.g. Formspree).
+- The contact form opens the visitor's own email app, addressed to `contactEmail` in
+  `src/data/site.ts`. There is no form backend, so nothing is stored or sent by the site itself.
 - Build command: `npm run build`, publish directory: `dist`.
